@@ -26,13 +26,13 @@
 
 参考输出
  ```bash
- [ℹ]  eksctl version 0.15.0
+ [ℹ]  eksctl version 0.18.0
  [ℹ]  using region cn-northwest-1
  [ℹ]  setting availability zones to [cn-northwest-1b cn-northwest-1a cn-northwest-1c]
  [ℹ]  subnets for cn-northwest-1b - public:192.168.0.0/19 private:192.168.96.0/19
  [ℹ]  subnets for cn-northwest-1a - public:192.168.32.0/19 private:192.168.128.0/19
  [ℹ]  subnets for cn-northwest-1c - public:192.168.64.0/19 private:192.168.160.0/19
- [ℹ]  using Kubernetes version 1.14
+ [ℹ]  using Kubernetes version 1.15
  [ℹ]  creating EKS cluster "eksworkshop" in "cn-northwest-1" region with managed nodes
  [ℹ]  will create 2 separate CloudFormation stacks for cluster itself and the initial managed nodegroup
  [ℹ]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=cn-northwest-1 --cluster=eksworkshop'
@@ -87,7 +87,7 @@ export STACK_NAME=${STACK_NAME}
  *特别提醒80/443 在AWS China Region需要完成备案流程，请联系你的商业经理确保已开通，或者自行更改nginx-nlb.yaml的端口
 
 ```bash
-kubectl apply -f resource/nginx-app/nginx-nlb.yaml 
+kubectl apply -f nginx-app/nginx-nlb.yaml
 
 ## Check deployment status
 kubectl get pods
@@ -103,7 +103,7 @@ curl -m3 -v $ELB
 
 > 清理
 ```bash
-kubectl delete -f nginx-nlb.yaml 
+kubectl delete -f nginx-app/nginx-nlb.yaml 
 ```
 
 2.3 扩展集群节点
@@ -131,22 +131,22 @@ ip-192-168-86-36.cn-northwest-1.compute.internal    Ready    <none>   3d4h   v1.
 
 2.4  中国区镜像处理
 
-  由于防火墙或安全限制，海外gcr.io, quay.io的镜像可能无法下载，为了不手动修改原始yaml文件的镜像路径，可以使用 [amazon-api-gateway-mutating-webhook-for-k8](https://github.com/aws-samples/amazon-api-gateway-mutating-webhook-for-k8) 项目实现镜像自动映射,  本workshop所需要的镜像已经由nwcdlabs/container-mirror准备好了，直接部署MutatingWebhookConfiguration即可。
+  由于防火墙或安全限制，海外gcr.io, quay.io的镜像可能无法下载，为了不手动修改原始yaml文件的镜像路径，可以使用 [amazon-api-gateway-mutating-webhook-for-k8](https://github.com/aws-samples/amazon-api-gateway-mutating-webhook-for-k8) 项目实现镜像自动映射,  本workshop所需要的镜像已经由[nwcdlabs/container-mirror](https://raw.githubusercontent.com/nwcdlabs/container-mirror)准备好了，直接部署MutatingWebhookConfiguration即可。
 
 1. 部署webhook配置文件
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/nwcdlabs/container-mirror/master/webhook/mutating-webhook.yaml
+kubectl apply -f mutating-webhook.yaml
 ```
 
 2. 部署样例应用，验证webhook工作正常
 
 ```bash
-kubectl apply -f ./nginx-gcr.yaml
-kubectl get pods
-kubectl get pod nginx-gcr-deployment-xxxx -o=jsonpath='{.spec.containers[0].image}'
-# 结果应显示为配置的gcr.io的路径
+kubectl run --generator=run-pod/v1 test --image=k8s.gcr.io/coredns:1.3.1
+kubectl get pod test -o=jsonpath='{.spec.containers[0].image}'
+# 结果应显示为048912060910.dkr.ecr.cn-northwest-1.amazonaws.com.cn/gcr/google_containers/coredns:1.3.1
+
 # 清理
-kubectl delete -f ./nginx-gcr.yaml
+kubectl delete pod test
 ```
 
 注意：China region EKS service 有2个官方的账号id, cn-northwest-1 961992271922, cn-north-1 91830976355，因此如果你需要下载EKS 官方的镜像，需要正确使用上面的两个id

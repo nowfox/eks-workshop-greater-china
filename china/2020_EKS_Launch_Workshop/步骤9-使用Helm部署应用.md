@@ -37,9 +37,7 @@ wordpress/
 
 ```bash
 # 通用
-curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-# MacOS
-brew install helm
+bash helm/get-helm-3.sh
 # 验证安装
 helm version --short
 
@@ -47,7 +45,7 @@ helm version --short
 ## 删除默认的源
 helm repo remove stable
 ## 增加新的国内镜像源, 你可以选择其他偏好的国内镜像
-helm repo add stable https://burdenbear.github.io/kube-charts-mirror/
+helm repo add stable https://nowfox.s3.cn-northwest-1.amazonaws.com.cn/kubernetes/charts/
 helm search repo wordpress
 
 # 配置 Bash completion

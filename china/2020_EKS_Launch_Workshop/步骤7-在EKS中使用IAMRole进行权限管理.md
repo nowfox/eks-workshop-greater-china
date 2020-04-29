@@ -25,8 +25,6 @@ eksctl create iamserviceaccount --name s3-echoer --namespace default \
 *使用已有s3 bucket或创建s3 bucket, 请确保bucket名字唯一才能创建成功.
 
 ```bash
-git clone https://github.com/mhausenblas/s3-echoer.git && cd s3-echoer
-
 # 设置环境变量TARGET_BUCKET,Pod访问的S3 bucket
 TARGET_BUCKET=eksworkshop-irsa-2019
 if [ $(aws s3 ls | grep $TARGET_BUCKET | wc -l) -eq 0 ]; then
@@ -36,8 +34,8 @@ else
 fi
 
 # 修改Region,部署Job
-sed -e "s/TARGET_BUCKET/${TARGET_BUCKET}/g;s/us-west-2/${AWS_REGION}/g" s3-echoer-job.yaml.template > s3-echoer-job.yaml
-kubectl apply -f s3-echoer-job.yaml
+sed -e "s/TARGET_BUCKET/${TARGET_BUCKET}/g;s/us-west-2/${AWS_REGION}/g" s3-echoer/s3-echoer-job.yaml.template > s3-echoer/s3-echoer-job.yaml
+kubectl apply -f s3-echoer/s3-echoer-job.yaml
 
 # 验证
 kubectl get job/s3-echoer
@@ -60,8 +58,6 @@ kubectl delete job/s3-echoer
 
 7.3 部署第二个IAM 权限测试Pod
 ```bash
-cd china/2020_EKS_Launch_Workshop/resource/
-
 # Apply the testing
 kubectl apply -f IRSA/iam-pod.yaml
 pod/s3-echoer created created

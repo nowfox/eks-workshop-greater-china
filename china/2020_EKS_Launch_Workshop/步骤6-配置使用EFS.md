@@ -11,8 +11,14 @@ aws ec2 authorize-security-group-ingress --group-id ${SGGroupID}  --protocol tcp
 
 # 创建EFS file system 和 mount-target, 请根据你的环境替换 FileSystemId， SubnetID， SGGroupID
 aws efs create-file-system --creation-token eks-efs --region ${AWS_REGION}
-aws efs create-mount-target --file-system-id FileSystemId --subnet-id SubnetID --security-group SGGroupID
-
+FileSystemId=上一步创建的结果
+#每个子网运行一次
+SubnetIds=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=${VPC_ID}" --query "Subnets[].SubnetId" --output text)
+for SubnetId in $SubnetIds
+do
+aws efs create-mount-target --file-system-id ${FileSystemId} --subnet-id ${SubnetId} --security-group $SGGroupID
+done
+#实际是每个AZ创建一个
 ```
 
 
@@ -35,7 +41,7 @@ The v.0.3.0 does work, you can also build your image to use v.0.2.0 CSI
 
 ```bash
 #使用EFS CSI v0.3.0 镜像
-kubectl apply -k /aws-efs-csi-driver/deploy/kubernetes/overlays/stable
+kubectl apply -k aws-efs-csi-driver/deploy/kubernetes/overlays/stable
 kubectl get pods -n kube-system
 
 NAME                                      READY   STATUS    RESTARTS   AGE
@@ -66,10 +72,9 @@ kubectl exec -ti efs-csi-node-5jtlc -n kube-system -- mount.efs --version
 6.2.2 部署样例测试
 ```bash
 ## Deploy app use the EFS
-cd examples/kubernetes/multiple_pods/
 aws efs describe-file-systems --query "FileSystems[*].[FileSystemId,Name]" --region ${AWS_REGION} --output text
 
-# 修改 the specs/pv.yaml file and replace the volumeHandle with FILE_SYSTEM_ID
+# 修改 aws-efs-csi-driver/examples/kubernetes/multiple_pods/specs/pv.yaml file and replace the volumeHandle with FILE_SYSTEM_ID
 # 例子：
 #csi:
 #    driver: efs.csi.aws.com
@@ -77,7 +82,7 @@ aws efs describe-file-systems --query "FileSystems[*].[FileSystemId,Name]" --reg
 
 
 # 部署 the efs-sc storage class, efs-claim pv claim, efs-pv, and app1 and app2 sample applications.
-kubectl apply -f specs/
+kubectl apply -f aws-efs-csi-driver/examples/kubernetes/multiple_pods/specs/
 
 kubectl describe storageclass efs-sc
 kubectl get pv
@@ -90,5 +95,5 @@ kubectl exec -ti app1 -- tail /data/out1.txt
 kubectl exec -ti app2 -- tail /data/out1.txt
 
 # 清理
-kubectl delete -f specs/
+kubectl delete -f aws-efs-csi-driver/examples/kubernetes/multiple_pods/specs/
 ```

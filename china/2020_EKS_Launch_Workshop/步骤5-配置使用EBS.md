@@ -27,7 +27,7 @@ POLICY_NAME=$(aws iam list-policies --query 'Policies[?PolicyName==`Amazon_EBS_C
 kubectl -n kube-system describe configmap aws-auth
 
 # 单个节点组
-ROLE_NAME=Role-name-in-above-output
+ROLE_NAME=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --region=${AWS_REGION} | jq -r '.StackResources[] | select(.ResourceType=="AWS::IAM::Role") | .PhysicalResourceId')
 aws iam attach-role-policy --policy-arn ${POLICY_NAME} \
     --role-name ${ROLE_NAME} --region ${AWS_REGION}
 
@@ -69,8 +69,7 @@ metrics-server-7fcf9cc98b-rntrh           1/1     Running            0          
 5.2 部署动态卷实例应用
 
 ```bash
-cd aws-ebs-csi-driver/examples/kubernetes/dynamic-provisioning/
-kubectl apply -f specs/
+kubectl apply -f aws-ebs-csi-driver/examples/kubernetes/dynamic-provisioning/specs/
 
 #查看storageclass
 kubectl describe storageclass ebs-sc
@@ -89,5 +88,5 @@ kubectl exec -it app cat /data/out.txt
 # Thu Mar 5 14:19:48 UTC 2020
 
 #删除示例程序
-kubectl delete -f specs/
+kubectl delete -f aws-ebs-csi-driver/examples/kubernetes/dynamic-provisioning/specs/
 ```

@@ -11,14 +11,8 @@
 8.1.1 Install Metrics Server
 
 ```bash
-# 下载Metrics Server
-mkdir -p hpa && cd hpa
-curl -Ls https://api.github.com/repos/kubernetes-sigs/metrics-server/tarball/v0.3.6  -o metrics-server-v0.3.6.tar.gz
-mkdir -p metrics-server-v0.3.6
-tar -xzf metrics-server-v0.3.6.tar.gz --directory metrics-server-v0.3.6 --strip-components 1
-
 # 假设您已经使用了image webhook, 否则请修改image地址为中国国内可访问的
-kubectl apply -f metrics-server-v0.3.6/deploy/1.8+/
+kubectl apply -f hpa/metrics-server-v0.3.6/deploy/1.8+/
 kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o metrics-server[a-zA-Z0-9-]+)
 
 # 验证 Metrics Server installation
@@ -28,7 +22,7 @@ kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
 
 8.1.2 安装 HPA sample application php-apache
 ```bash
-kubectl apply -f https://k8s.io/examples/application/php-apache.yaml
+kubectl apply -f hpa/php-apache.yaml
 
 # Set threshold to CPU30% auto-scaling, and up to 5 pod replicas
 kubectl autoscale deployment php-apache --cpu-percent=30 --min=1 --max=5
@@ -64,53 +58,21 @@ php-apache   5/5     5            5           6m2s
 3. 自动发现 Auto-Discovery
 4. 主节点设置
 
-8.2.1 配置Cluster Autoscaler (CA)
-```bash
-mkdir cluster-autoscaler && cd cluster-autoscaler
-wget https://eksworkshop.com/beginner/080_scaling/deploy_ca.files/cluster_autoscaler.yml
-
-K8S_VERSION=$(kubectl version --short | grep 'Server Version:' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/' | cut -d. -f1,2)
-
-AUTOSCALER_VERSION=$(curl -s "https://api.github.com/repos/kubernetes/autoscaler/releases" | grep '"tag_name":' | sed 's/.*-\([0-9][0-9\.]*\).*/\1/' | grep -m1 ${K8S_VERSION})
-```
-
-8.2.2 Configure the Auto Scaling Group ASG
+8.2.1 Configure the Auto Scaling Group ASG
 ![ASG](media/cluster-asg.png)
 修改Capacity为
 Min: 2
-Max: 6
+Max: 8
 
-8.2.3 Apply CA
+8.2.2 Apply CA
 ```bash
-# Replace the placeholder value
-${AUTOSCALER_VERSION}
-<AUTOSCALING GROUP NAME>
-<AWS_REGION_NAME> 
-This specifies the minimum nodes (2), max nodes (8) and ASG Name.
+# 替换cluster_autoscaler/cluster_autoscaler.yml 148行Auto Scaling Group Id
 
 # Apply IAM Policy
 STACK_NAME=$(eksctl get nodegroup --cluster ${CLUSTER_NAME} --region=${AWS_REGION} -o json | jq -r '.[].StackName')
 echo $STACK_NAME
 ROLE_NAME=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --region=${AWS_REGION} | jq -r '.StackResources[] | select(.ResourceType=="AWS::IAM::Role") | .PhysicalResourceId')
 echo $ROLE_NAME
-
-cat cluster-autoscaler/k8s-asg-policy.json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "autoscaling:DescribeAutoScalingGroups",
-        "autoscaling:DescribeAutoScalingInstances",
-        "autoscaling:SetDesiredCapacity",
-        "autoscaling:TerminateInstanceInAutoScalingGroup",
-        "autoscaling:DescribeTags"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
 
 aws iam put-role-policy --role-name $ROLE_NAME --policy-name ASG-Policy-For-Worker --policy-document file://./cluster-autoscaler/k8s-asg-policy.json --region ${AWS_REGION}
 
@@ -125,7 +87,7 @@ kubectl logs -f deployment/cluster-autoscaler -n kube-system
 
 ```
 
-8.2.4 Scale cluster
+8.2.3 Scale cluster
 ```bash
 
 kubectl apply -f cluster-autoscaler/nginx-to-scaleout.yaml
@@ -134,7 +96,7 @@ NAME                READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-to-scaleout   1/1     1            1           43s
 
 # Scale out the ReplicaSet
-kubectl scale --replicas=10 deployment/nginx-to-scaleout
+kubectl scale --replicas=20 deployment/nginx-to-scaleout
 
 kubectl get pods --watch
 NAME                                 READY   STATUS    RESTARTS   AGE
@@ -176,7 +138,7 @@ aws ec2 describe-instances --filters "Name=tag:eks:cluster-name,Values=${CLUSTER
 
 ```
 
-8.2.5 clean up
+8.2.4 clean up
 ```bash
 kubectl delete -f cluster-autoscaler/nginx-to-scaleout.yaml
 kubectl delete -f cluster-autoscaler/cluster_autoscaler.yml
