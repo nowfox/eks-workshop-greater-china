@@ -8,8 +8,8 @@ version: 'latest'
 
 # Service Specific Values
 nodejs:
-  #image: brentley/ecsdemo-nodejs
-  image: brentley/ecsdemo-nodejs-non-existing
+  image: brentley/ecsdemo-nodejs
+  #image: brentley/ecsdemo-nodejs-non-existing
 crystal:
   image: brentley/ecsdemo-crystal
 frontend:
