@@ -4,8 +4,7 @@
 
 ```bash
 # 如果采用了2.4 中的镜像webhook，直接进行部署，否则需要修改kubernetes-dashboard.yaml中镜像位置为国内Mirror，否则部署会因为Image无法下载而失败
-#kubectl apply -f kubernetes-dashboard.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+kubectl apply -f kubernetes-dashboard.yaml
 kubectl get pods -n kube-system
 kubectl get services -n kube-system
 
