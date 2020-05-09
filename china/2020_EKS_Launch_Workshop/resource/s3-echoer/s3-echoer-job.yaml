@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: s3-echoer
+spec:
+  template:
+    spec:
+      serviceAccountName: s3-echoer
+      containers:
+      - name: main
+        image: 048912060910.dkr.ecr.cn-northwest-1.amazonaws.com.cn/dockerhub/amazonlinux:2018.03
+        command:
+        - "sh"
+        - "-c"
+        - "curl -sL -o /s3-echoer https://nowfox.s3.cn-northwest-1.amazonaws.com.cn/eksworkshop/s3-echoer-linux && chmod +x /s3-echoer && echo This is an in-cluster test | /s3-echoer junzhong"
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: "cn-northwest-1"
+        - name: ENABLE_IRP
+          value: "true"
+      restartPolicy: Never
+
