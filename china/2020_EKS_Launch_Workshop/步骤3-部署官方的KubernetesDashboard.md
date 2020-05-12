@@ -8,11 +8,9 @@ kubectl apply -f kubernetes-dashboard.yaml
 kubectl get pods -n kube-system
 kubectl get services -n kube-system
 
-#由于我们部署的EKS cluster是private cluster，所以我们需要通过 proxy. Kube-proxy进行访问Dashboard
-kubectl proxy --port=8080 --address='0.0.0.0' --disable-filter=true &
-
-#访问
-http://localhost:8080//api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
+#获取访问地址
+kubectl get service kubernetes-dashboard -n kube-system -o json | jq -r ".status.loadBalancer.ingress[0].hostname"
+#在浏览器中输入访问地址
 
 #获取登录的token
 aws eks get-token --cluster-name ${CLUSTER_NAME} --region ${AWS_REGION} | jq -r '.status.token'
