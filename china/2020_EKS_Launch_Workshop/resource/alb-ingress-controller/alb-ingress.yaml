@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-app
+spec:
+  selector:
+    matchLabels:
+      app: apple
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+      - image: direct.to/hashicorp/http-echo
+        name: apple-app
+        args:
+          - "-text=apple"
+        ports:
+          - containerPort: 5678
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+spec:
+  selector:
+    app: apple
+  ports:
+    - port: 5678
+      targetPort: 5678
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banana-app
+spec:
+  selector:
+    matchLabels:
+      app: banana
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: banana
+    spec:
+      containers:
+      - image: direct.to/hashicorp/http-echo
+        name: banana-app
+        args:
+          - "-text=banana"
+        ports:
+          - containerPort: 5678
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  selector:
+    app: banana
+  ports:
+    - port: 5678
+      targetPort: 5678
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echoserver
+spec:
+  selector:
+    matchLabels:
+      app: echoserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: echoserver
+    spec:
+      containers:
+      - image: gcr.io/google_containers/echoserver:1.4
+        name: echoserver
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echoserver
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
+  selector:
+    app: echoserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-ingress
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "service-nginx-clusterip"
+spec:
+  selector:
+    app: nginx
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "alb-ingress"
+  namespace: "default"
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+spec:
+  rules:
+    - host: a.test.com
+      http:
+        paths:
+          - path: /apple
+            backend:
+              serviceName: apple-service
+              servicePort: 5678
+          - path: /banana
+            backend:
+              serviceName: banana-service
+              servicePort: 5678
+    - host: b.test.com
+      http:
+        paths:
+          - path: /echo
+            backend:
+              serviceName: "echoserver"
+              servicePort: 80
+          - path: /*
+            backend:
+              serviceName: "service-nginx-clusterip"
+              servicePort: 80

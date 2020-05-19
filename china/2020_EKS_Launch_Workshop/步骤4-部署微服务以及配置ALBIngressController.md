@@ -162,7 +162,7 @@ eksctl create iamserviceaccount \
  #参考输出
 -------------------------------------------------------------------------------
   AWS ALB Ingress controller
-  Release:    v1.1.5
+  Release:    v1.1.7
   Build:      git-2560c813
   Repository: https://github.com/kubernetes-sigs/aws-alb-ingress-controller.git
 -------------------------------------------------------------------------------
@@ -171,25 +171,44 @@ eksctl create iamserviceaccount \
 
 
  4.4 使用ALB Ingress   
->4.4.1 为nginx service创建ingress
-
+>4.4.1 为service创建ingress
+注意，确保已经使用2.4章节自动修改image mirror的webhook。
 ```bash
-kubectl apply -f alb-ingress-controller/nginx-alb-ingress.yaml
+kubectl apply -f alb-ingress-controller/alb-ingress.yaml
 ```
 
 >4.4.2 验证
 
 ```bash
-ALB=$(kubectl get ingress -o json | jq -r '.items[0].status.loadBalancer.ingress[].hostname')
-curl -m3 -v $ALB
+ALB=$(kubectl get ingresses alb-ingress -o json | jq -r ".status.loadBalancer.ingress[].hostname")
+# 访问a.test.com的apple 
+curl -i -k -H "Host:a.test.com" ${ALB}/apple
+#参考输出
+HTTP/1.1 200 OK
+Date: Tue, 19 May 2020 07:36:50 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 6
+Connection: keep-alive
+X-App-Name: http-echo
+X-App-Version: 0.2.3
+
+apple
+
+# 访问a.test.com的banana 
+curl -i -k -H "Host:a.test.com" ${ALB}/banana
+#访问b.test.com的echo
+curl -i -k -H "Host:b.test.com" ${ALB}/echo
+#访问b.test.com的其他服务
+curl -i -k -H "Host:b.test.com" ${ALB}
 
 # 如果遇到问题，请查看日志
 kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o alb-ingress[a-zA-Z0-9-]+)
 ```
-
+在实际使用中，需要把a.test.com、b.test.com的CNAME指向ALB的地址。  
+如果需要使用https，在确保AWS Certificate Manager服务里有对应的证书后，去掉[alb-ingress-controller/alb-ingress.yaml](alb-ingress-controller/alb-ingress.yaml)第148行的注释，即可启用https。
 > 4.4.3 清理
 ```bash
-kubectl delete -f alb-ingress-controller/nginx-alb-ingress.yaml
+kubectl delete -f alb-ingress-controller/alb-ingress.yaml
 ```
 
 4.5 使用ALB Ingress，部署2048 game (可选）

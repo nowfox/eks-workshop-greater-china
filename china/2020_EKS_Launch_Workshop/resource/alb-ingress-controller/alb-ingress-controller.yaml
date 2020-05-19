@@ -41,7 +41,7 @@ spec:
             # AWS VPC ID this ingress controller will use to create AWS resources.
             # If unspecified, it will be discovered from ec2metadata.
             # - --aws-vpc-id=vpc-xxxxxx
-            - --aws-vpc-id=vpc-0a29d0677316e53ca
+            - --aws-vpc-id=vpc-062bbc143998d50ad
 
             # AWS region this ingress controller will operate in.
             # If unspecified, it will be discovered from ec2metadata.
@@ -54,6 +54,7 @@ spec:
             # Maximum number of times to retry the aws calls.
             # defaults to 10.
             # - --aws-max-retries=10
+            - --feature-gates=wafv2=false
           env:
             - name: AWS_REGION
               value: cn-northwest-1
@@ -69,5 +70,5 @@ spec:
             #- name: AWS_SECRET_ACCESS_KEY
             #  value: SECRETVALUE
           # Repository location of the ALB Ingress Controller.
-          image: docker.io/amazon/aws-alb-ingress-controller:v1.1.5
+          image: docker.io/amazon/aws-alb-ingress-controller:v1.1.7
       serviceAccountName: alb-ingress-controller
