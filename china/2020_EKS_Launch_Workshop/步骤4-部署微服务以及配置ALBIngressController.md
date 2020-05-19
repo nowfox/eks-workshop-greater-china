@@ -139,18 +139,14 @@ eksctl create iamserviceaccount \
 
 >4.2.2 创建 ALB Ingress Controller 配置文件
 
- 修改alb-ingress-controller.yaml 以下配置，参考示例 resource/alb-ingress-controller/alb-ingress-controller.yaml
-(eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
+ 修改alb-ingress-controller/alb-ingress-controller.yaml 以下配置(eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
 
   ```bash
   #修改以下内容
   - --cluster-name=<步骤2 创建的集群名字>
   - --aws-vpc-id=<eksctl 创建的vpc-id>   
   - --aws-region=cn-northwest-1
-  #添加环境变量，作为 https://github.com/kubernetes-sigs/aws-alb-ingress-controller/issues/1180 的workaround
-  env:
-            - name: AWS_REGION
-              value: cn-northwest-1
+
     
   #使用修改好的yaml文件部署ALB Ingress Controller
  kubectl apply -f alb-ingress-controller/alb-ingress-controller.yaml
@@ -172,6 +168,7 @@ eksctl create iamserviceaccount \
 
  4.4 使用ALB Ingress   
 >4.4.1 为service创建ingress
+
 注意，确保已经使用2.4章节自动修改image mirror的webhook。
 ```bash
 kubectl apply -f alb-ingress-controller/alb-ingress.yaml
