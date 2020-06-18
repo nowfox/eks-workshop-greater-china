@@ -202,7 +202,7 @@ curl -i -k -H "Host:b.test.com" ${ALB}
 kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o alb-ingress[a-zA-Z0-9-]+)
 ```
 在实际使用中，需要把a.test.com、b.test.com的CNAME指向ALB的地址。  
-如果需要使用https，在确保AWS Certificate Manager服务里有对应的证书后，去掉[alb-ingress-controller/alb-ingress.yaml](alb-ingress-controller/alb-ingress.yaml)第148行的注释，即可启用https。
+如果需要使用https，在确保AWS Certificate Manager服务里有对应的证书后，去掉[resource/alb-ingress-controller/alb-ingress.yaml](resource/alb-ingress-controller/alb-ingress.yaml)第148行的注释，即可启用https。
 > 4.4.3 清理
 ```bash
 kubectl delete -f alb-ingress-controller/alb-ingress.yaml
