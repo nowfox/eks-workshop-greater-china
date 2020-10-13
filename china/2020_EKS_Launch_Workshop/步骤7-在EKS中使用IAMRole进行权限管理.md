@@ -26,12 +26,7 @@ eksctl create iamserviceaccount --name s3-echoer --namespace default \
 
 ```bash
 # 设置环境变量TARGET_BUCKET,Pod访问的S3 bucket
-TARGET_BUCKET=eksworkshop-irsa-2019
-if [ $(aws s3 ls | grep $TARGET_BUCKET | wc -l) -eq 0 ]; then
-    aws s3api create-bucket  --bucket $TARGET_BUCKET  --create-bucket-configuration LocationConstraint=$AWS_REGION  --region $AWS_REGION
-else
-    echo "S3 bucket $TARGET_BUCKET existed, skip creation"
-fi
+TARGET_BUCKET=您的bucket
 
 # 修改Region,部署Job
 sed -e "s/TARGET_BUCKET/${TARGET_BUCKET}/g;s/us-west-2/${AWS_REGION}/g" s3-echoer/s3-echoer-job.yaml.template > s3-echoer/s3-echoer-job.yaml
@@ -70,8 +65,8 @@ s3-echoer                       1/1     Running   0          2m38s
 kubectl exec -it s3-echoer bash
 # In promote input, the output Arn should looks like assumed-role/eksctl-gcr-zhy-eksworkshop-addon-iamservicea-Role
 aws sts get-caller-identity
-# output shoudld list all the S3 bucket in AWS_REGION under the account 
 aws s3 ls
+# output shoudld list all the S3 bucket in AWS_REGION under the account 
 aws ec2 describe-instances
 # output should be like: An error occurred (UnauthorizedOperation) when calling the DescribeInstances operation: You are not authorized to perform this operation.
 

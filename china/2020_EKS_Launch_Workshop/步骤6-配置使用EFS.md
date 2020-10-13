@@ -27,8 +27,8 @@ done
 [官方文档]（https://docs.aws.amazon.com/zh_cn/eks/latest/userguide/efs-csi.html）
 
 ```bash
-git clone https://github.com/kubernetes-sigs/aws-efs-csi-driver.git
-cd aws-efs-csi-driver
+#git clone https://github.com/kubernetes-sigs/aws-efs-csi-driver.git
+#cd aws-efs-csi-driver
 ```
 
 6.2.1 Deploy EFS CSI driver to EKS cluster 

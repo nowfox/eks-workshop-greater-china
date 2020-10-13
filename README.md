@@ -7,18 +7,11 @@ AWS GCR 2020 EKS Launch Hands-on Workshop
 -   [介绍](china/2020_EKS_Launch_Workshop/README.md)
 -   [步骤1-准备实验环境](china/2020_EKS_Launch_Workshop/步骤1-准备实验环境.md)
 -   [步骤2-创建EKS集群](china/2020_EKS_Launch_Workshop/步骤2-创建EKS集群.md)
--   [步骤3-部署官方的KubernetesDashboard](china/2020_EKS_Launch_Workshop/步骤3-部署官方的KubernetesDashboard.md)
 -   [步骤4-部署微服务以及配置ALBIngressController](china/2020_EKS_Launch_Workshop/步骤4-部署微服务以及配置ALBIngressController.md) 
 -   [步骤5-配置使用EBS](china/2020_EKS_Launch_Workshop/步骤5-配置使用EBS.md)
 -   [步骤6-配置使用EFS](china/2020_EKS_Launch_Workshop/步骤6-配置使用EFS.md)
 -   [步骤7-在EKS中使用IAMRole进行权限管理](china/2020_EKS_Launch_Workshop/步骤7-在EKS中使用IAMRole进行权限管理.md)
 -   [步骤8-对应用Pod和集群进行自动扩展](china/2020_EKS_Launch_Workshop/步骤8-对应用Pod和集群进行自动扩展.md)
--   [步骤9-使用Helm部署应用](china/2020_EKS_Launch_Workshop/步骤9-使用Helm部署应用.md)
--   [步骤10-可用性-健康检查](china/2020_EKS_Launch_Workshop/步骤10-可用性-健康检查.md)
--   [步骤11-使用Calio加固EKS集群安全](china/2020_EKS_Launch_Workshop/步骤11-使用Calio加固EKS集群安全.md)
--   [步骤12 使用EFK收集、处理日志](china/2020_EKS_Launch_Workshop/步骤12-EFK日志收集.md)
--   [步骤13 部署Prometheus & Grafana监控](china/2020_EKS_Launch_Workshop/步骤13-Prometheus&Grafana监控.md)
--   [步骤14 在EKS集群上部署Istio 服务网格](china/2020_EKS_Launch_Workshop/步骤14-在EKS集群上部署Istio服务网格.md)
 
 
 

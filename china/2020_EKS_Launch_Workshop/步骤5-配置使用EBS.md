@@ -27,7 +27,7 @@ POLICY_NAME=$(aws iam list-policies --query 'Policies[?PolicyName==`Amazon_EBS_C
 kubectl -n kube-system describe configmap aws-auth
 
 # 单个节点组
-ROLE_NAME=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --region=${AWS_REGION} | jq -r '.StackResources[] | select(.ResourceType=="AWS::IAM::Role") | .PhysicalResourceId')
+ROLE_NAME=Role-name-in-above-output #注意：rolearn该行“/”以后内容
 aws iam attach-role-policy --policy-arn ${POLICY_NAME} \
     --role-name ${ROLE_NAME} --region ${AWS_REGION}
 

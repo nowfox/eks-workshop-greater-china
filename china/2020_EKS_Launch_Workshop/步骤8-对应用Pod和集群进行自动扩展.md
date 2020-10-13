@@ -37,9 +37,9 @@ kubectl run --generator=run-pod/v1 -it --rm load-generator --image=busybox /bin/
 while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done
 ```
 
-8.1.4 Check HPA
+8.1.4 Check HPA  
+新开启一个shell
 ```bash
-
 watch kubectl get hpa
 NAME         REFERENCE               TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   250%/30%   1         5         4          3m22s
