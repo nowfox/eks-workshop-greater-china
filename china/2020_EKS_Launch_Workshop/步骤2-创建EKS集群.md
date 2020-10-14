@@ -89,7 +89,7 @@ export STACK_NAME=${STACK_NAME}
 cd eks-workshop-greater-china/china/2020_EKS_Launch_Workshop/resource
 ```
 
-  由于防火墙或安全限制，海外gcr.io, quay.io的镜像可能无法下载，为了不手动修改原始yaml文件的镜像路径，可以使用 [amazon-api-gateway-mutating-webhook-for-k8](https://github.com/aws-samples/amazon-api-gateway-mutating-webhook-for-k8) 项目实现镜像自动映射,  本workshop所需要的镜像已经由[nwcdlabs/container-mirror](https://raw.githubusercontent.com/nwcdlabs/container-mirror)准备好了，直接部署MutatingWebhookConfiguration即可。
+  由于防火墙或安全限制，海外gcr.io, quay.io的镜像可能无法下载，为了不手动修改原始yaml文件的镜像路径，可以使用 [amazon-api-gateway-mutating-webhook-for-k8](https://github.com/aws-samples/amazon-api-gateway-mutating-webhook-for-k8) 项目实现镜像自动映射,  本workshop所需要的镜像已经由[nwcdlabs/container-mirror](https://github.com/nwcdlabs/container-mirror)准备好了，直接部署MutatingWebhookConfiguration即可。
 
 1. 部署webhook配置文件
 ```bash
