@@ -20,8 +20,7 @@
  #--node-type 工作节点类型 默认为m5.large
  #--nodes 工作节点数量 默认为2
  
- eksctl create cluster --name=${CLUSTER_NAME} --node-type t3.medium --managed --asg-access --alb-ingress-access --region=${AWS_REGION} --nodes-max 10
-
+ eksctl create cluster --name=${CLUSTER_NAME} --node-type t3.medium --managed --asg-access --alb-ingress-access --region=${AWS_REGION} --version=1.17 --nodes-max 10
  ```
 
 参考输出
