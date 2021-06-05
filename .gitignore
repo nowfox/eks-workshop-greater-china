@@ -8,3 +8,4 @@ resource/china/s3-echoer
 resource/china/hpa/metrics-server-v0.3.6.tar.gz
 resource/china/hpa/metrics-server-v0.3.6/*
 /.project
+.idea/
