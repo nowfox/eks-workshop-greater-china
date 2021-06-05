@@ -145,10 +145,10 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
 spec:
   rules:
-    - host: a.test.com
+    - host: a.nowfox.com
       http:
         paths:
           - path: /apple
@@ -159,7 +159,7 @@ spec:
             backend:
               serviceName: banana-service
               servicePort: 5678
-    - host: b.test.com
+    - host: b.nowfox.com
       http:
         paths:
           - path: /echo
