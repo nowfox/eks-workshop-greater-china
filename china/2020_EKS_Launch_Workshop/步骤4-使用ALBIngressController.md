@@ -7,6 +7,9 @@
 这个操作每个集群只需要做一次
 ```bash
 eksctl utils associate-iam-oidc-provider --cluster=${CLUSTER_NAME} --approve --region ${AWS_REGION}
+```
+参考输出
+```bash
 2021-06-05 02:59:14 [ℹ]  eksctl version 0.52.0
 2021-06-05 02:59:14 [ℹ]  using region cn-northwest-1
 2021-06-05 02:59:14 [ℹ]  will create IAM Open ID Connect provider for cluster "eksworkshop" in "cn-northwest-1"
@@ -34,8 +37,9 @@ eksctl create iamserviceaccount \
        --attach-policy-arn=${POLICY_NAME} \
        --override-existing-serviceaccounts \
        --approve
-
+```
 参考输出
+```bash
 2021-06-05 04:11:26 [ℹ]  eksctl version 0.52.0
 2021-06-05 04:11:26 [ℹ]  using region cn-northwest-1
 2021-06-05 04:11:26 [ℹ]  1 iamserviceaccount (kube-system/aws-ingress-controller) was included (based on the include/exclude rules)
@@ -52,18 +56,22 @@ eksctl create iamserviceaccount \
 ### 4.2.1 安装证书管理
 ```bash
 kubectl apply --validate=false -f alb-ingress-controller/cert-manager.yaml
-#get all正常后，再执行4.2.2内容
+```
+get all正常后，再执行4.2.2内容
+```bash
 kubectl get all -n cert-manager
 ```
 ### 4.2.2 创建 ALB Ingress Controller
 修改alb-ingress-controller/alb-ingress-controller.yaml 797行cluster-name的值为集群名，这里填入`eksworkshop`
 ```bash
 kubectl apply -f alb-ingress-controller/alb-ingress-controller.yaml
- 
- #确认ALB Ingress Controller是否工作
+```
+确认ALB Ingress Controller是否工作
+```bash
 kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o aws-load-balancer-controller[a-zA-Z0-9-]+)
-
- #参考输出
+```
+参考输出
+```bash
 {"level":"info","ts":1622873808.1657822,"msg":"version","GitVersion":"v2.2.0","GitCommit":"68c417a7ea37ff153f053d9ffef1cc5c70d7e211","BuildDate":"2021-05-14T21:49:05+0000"}
 {"level":"info","ts":1622873808.2694807,"logger":"controller-runtime.metrics","msg":"metrics server is starting to listen","addr":":8080"}
 {"level":"info","ts":1622873808.2731354,"logger":"setup","msg":"adding health check for controller"}
@@ -79,9 +87,13 @@ kubectl apply -f alb-ingress-controller/alb-ingress.yaml
 ### 4.3.2 验证
 ```bash
 ALB=$(kubectl get ingresses alb-ingress -o json | jq -r ".status.loadBalancer.ingress[].hostname")
-# 访问a.test.com的apple 
+```
+访问a.test.com的apple
+```bash 
 curl -i -k -H "Host:a.nowfox.com" https://${ALB}/apple
-#参考输出
+```
+参考输出
+```
 HTTP/1.1 200 OK
 Date: Tue, 19 May 2020 07:36:50 GMT
 Content-Type: text/plain; charset=utf-8
@@ -91,15 +103,21 @@ X-App-Name: http-echo
 X-App-Version: 0.2.3
 
 apple
-
-# 访问a.test.com的banana 
+```
+访问a.test.com的banana
+```bash 
 curl -i -k -H "Host:a.nowfox.com" https://${ALB}/banana
-#访问b.test.com的echo
+```
+访问b.test.com的echo
+```bash
 curl -i -k -H "Host:b.nowfox.com" https://${ALB}/echo
-#访问b.test.com的其他服务
+```
+访问b.test.com的其他服务
+```bash
 curl -i -k -H "Host:b.nowfox.com" https://${ALB}
-
-# 如果遇到问题，请查看日志
+```
+如果遇到问题，请查看日志
+```bash
 kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o aws-load-balancer-controller[a-zA-Z0-9-]+)
 ```
 在实际使用中，需要把a.nowfox.com、b.nowfox.com的CNAME指向ALB的地址。  
@@ -108,5 +126,10 @@ kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o aws-load-
 > 4.4.3 清理
 ```bash
 kubectl delete -f alb-ingress-controller/alb-ingress.yaml
+kubectl delete -f alb-ingress-controller/alb-ingress-controller.yaml
+kubectl delete -f alb-ingress-controller/cert-manager.yaml
+eksctl delete iamserviceaccount aws-load-balancer-controller \
+       --cluster=${CLUSTER_NAME} \
+       --namespace=kube-system
 ```
 

@@ -20,7 +20,7 @@ aws iam create-policy \
     --region ${AWS_REGION}
         
 #记录返回的Plociy ARN
-POLICY_NAME=$(aws iam list-policies --query 'Policies[?PolicyName==`AmazonEKS_EFS_CSI_Driver`].Arn' --output text --region ${AWS_REGION})
+policy_arn=$(aws iam list-policies --query 'Policies[?PolicyName==`AmazonEKS_EFS_CSI_Driver`].Arn' --output text --region ${AWS_REGION})
 ```
 
 ### 6.1.3 创建service account
@@ -29,7 +29,7 @@ eksctl create iamserviceaccount \
     --name efs-csi-controller-sa \
     --namespace kube-system \
     --cluster ${CLUSTER_NAME} \
-    --attach-policy-arn ${POLICY_NAME} \
+    --attach-policy-arn ${policy_arn} \
     --approve \
     --override-existing-serviceaccounts
 ```
@@ -38,20 +38,31 @@ eksctl create iamserviceaccount \
 ```bash
 kubectl apply -f aws-efs-csi-driver/driver.yaml
 ```
-
+get all正常后，再执行6.3内容
+```bash
+kubectl get all -n kube-system
+```
 ## 6.3 创建EFS file system
 ```bash
 # 创建EFS Security group
 VPC_ID=$(aws eks describe-cluster --name ${CLUSTER_NAME} --region ${AWS_REGION} --query "cluster.resourcesVpcConfig.vpcId" --output text)
 VPC_CIDR=$(aws ec2 describe-vpcs --vpc-ids ${VPC_ID} --query "Vpcs[].CidrBlock"  --region ${AWS_REGION} --output text)
 aws ec2 create-security-group --description ${CLUSTER_NAME}-efs-eks-sg --group-name efs-sg --vpc-id ${VPC_ID}
+```
+```bash
 SGGroupID=上一步的结果访问
+```
+```bash
 aws ec2 authorize-security-group-ingress --group-id ${SGGroupID}  --protocol tcp --port 2049 --cidr ${VPC_CIDR}
 
 # 创建EFS file system 和 mount-target, 请根据你的环境替换 FileSystemId， SubnetID， SGGroupID
 aws efs create-file-system --creation-token eks-efs --region ${AWS_REGION}
+```
+```bash
 FileSystemId=上一步创建的结果
-#每个子网运行一次
+```
+每个子网运行一次
+```bash
 SubnetIds=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=${VPC_ID}" --query "Subnets[].SubnetId" --output text)
 for SubnetId in $SubnetIds
 do
@@ -119,4 +130,11 @@ kubectl delete -f aws-efs-csi-driver/driver.yaml
 eksctl delete iamserviceaccount efs-csi-controller-sa \
        --cluster=${CLUSTER_NAME} \
        --namespace=kube-system
+aws iam delete-policy --policy-arn ${policy_arn}
+
+Targets=$(aws efs describe-mount-targets --file-system-id ${FileSystemId} | jq -r ".MountTargets[].MountTargetId")
+for TargetId in $Targets
+do
+aws efs delete-mount-target --mount-target-id $TargetId
+done
 ```

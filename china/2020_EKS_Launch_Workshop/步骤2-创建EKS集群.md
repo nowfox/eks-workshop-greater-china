@@ -20,7 +20,7 @@ CLUSTER_NAME=eksworkshop
  #--node-type 工作节点类型 默认为m5.large
  #--nodes 工作节点数量 默认为2
  
- eksctl create cluster --name=${CLUSTER_NAME} --node-type t3.medium --managed --asg-access --alb-ingress-access --region=${AWS_REGION} --version=1.20 --nodes-max 10
+ eksctl create cluster --name=${CLUSTER_NAME} --node-type t3.medium --managed --asg-access --region=${AWS_REGION} --version=1.20 --nodes-max 10
  ```
 
 参考输出
@@ -64,10 +64,10 @@ CLUSTER_NAME=eksworkshop
 2021-06-05 01:54:47 [✔]  EKS cluster "eksworkshop" in "cn-northwest-1" region is ready
  ```
 
-  集群创建完毕后,查看EKS集群工作节点
-  ```bash
-   kubectl get node
-  ```
+集群创建完毕后,查看EKS集群工作节点
+```bash
+kubectl get node
+```
 
   参考输出
  ```bash
@@ -92,6 +92,7 @@ kubectl apply -f mutating-webhook.yaml
 ### 2.2.2 部署样例应用，验证webhook工作正常
 
 ```bash
+cat pod.yaml
 kubectl apply -f pod.yaml
 kubectl get pod test -o=jsonpath='{.spec.containers[0].image}'
 # 结果应显示为048912060910.dkr.ecr.cn-northwest-1.amazonaws.com.cn/gcr/google_containers/coredns:1.3.1

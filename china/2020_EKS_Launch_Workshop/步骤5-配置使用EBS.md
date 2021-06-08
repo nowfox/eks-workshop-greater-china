@@ -21,7 +21,7 @@ aws iam create-policy \
     --region ${AWS_REGION}
         
 #记录返回的Plociy ARN
-POLICY_NAME=$(aws iam list-policies --query 'Policies[?PolicyName==`AmazonEKS_EBS_CSI_Driver`].Arn' --output text --region ${AWS_REGION})
+policy_arn=$(aws iam list-policies --query 'Policies[?PolicyName==`AmazonEKS_EBS_CSI_Driver`].Arn' --output text --region ${AWS_REGION})
 ```
 
 ### 5.1.3 创建service account
@@ -30,7 +30,7 @@ eksctl create iamserviceaccount \
     --name ebs-csi-controller-sa \
     --namespace kube-system \
     --cluster ${CLUSTER_NAME} \
-    --attach-policy-arn ${POLICY_NAME} \
+    --attach-policy-arn ${policy_arn} \
     --approve \
     --override-existing-serviceaccounts
 ```
@@ -39,7 +39,10 @@ eksctl create iamserviceaccount \
 ```bash
 kubectl apply -k aws-ebs-csi-driver/base
 ```
-
+get all正常后，再执行5.3内容
+```bash
+kubectl get all -n kube-system
+```
 ## 5.3 部署一个示例应用程序并验证 CSI 驱动程序是否正常运行
 ### 5.3.1 部署 ebs-sc 存储类、ebs-claim 持久性卷声明和 app 示例应用程序
 ```bash
@@ -62,4 +65,5 @@ kubectl delete -k aws-ebs-csi-driver/base
 eksctl delete iamserviceaccount ebs-csi-controller-sa \
        --cluster=${CLUSTER_NAME} \
        --namespace=kube-system
+aws iam delete-policy --policy-arn ${policy_arn}
 ```
