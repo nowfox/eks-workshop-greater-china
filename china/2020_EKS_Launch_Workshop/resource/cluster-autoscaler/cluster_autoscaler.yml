@@ -145,7 +145,7 @@ spec:
             - --stderrthreshold=info
             - --cloud-provider=aws
             - --skip-nodes-with-local-storage=false
-            - --nodes=2:8:eks-42b8e1ee-fb3d-1afa-0dad-5896a98a7f74
+            - --nodes=2:10:eks-1cbcf2c5-9c3b-24f7-b1e0-cccf04e632e5
             - --expander=random
             - --expendable-pods-priority-cutoff=-10
             - --scale-down-unneeded-time=2m0s
