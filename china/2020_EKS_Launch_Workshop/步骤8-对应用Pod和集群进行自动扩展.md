@@ -6,9 +6,9 @@
 
 [官方文档](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#increase-load)
 
-8.1 使用HPA对Pod进行自动扩展
+## 8.1 使用HPA对Pod进行自动扩展
 
-8.1.1 Install Metrics Server
+### 8.1.1 Install Metrics Server
 
 ```bash
 # 假设您已经使用了image webhook, 否则请修改image地址为中国国内可访问的
@@ -20,7 +20,7 @@ kubectl get deployment metrics-server -n kube-system
 kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
 ```
 
-8.1.2 安装 HPA sample application php-apache
+### 8.1.2 安装 HPA sample application php-apache
 ```bash
 kubectl apply -f hpa/php-apache.yaml
 
@@ -29,7 +29,7 @@ kubectl autoscale deployment php-apache --cpu-percent=30 --min=1 --max=5
 kubectl get hpa
 ```
 
-8.1.3 开启 load-generator
+### 8.1.3 开启 load-generator
 ```bash
 kubectl run --generator=run-pod/v1 -it --rm load-generator --image=busybox /bin/sh
 
@@ -37,7 +37,7 @@ kubectl run --generator=run-pod/v1 -it --rm load-generator --image=busybox /bin/
 while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done
 ```
 
-8.1.4 Check HPA  
+### 8.1.4 Check HPA  
 新开启一个shell
 ```bash
 watch kubectl get hpa
@@ -47,10 +47,14 @@ php-apache   Deployment/php-apache   250%/30%   1         5         4          3
 kubectl get deployment php-apache
 NAME         READY   UP-TO-DATE   AVAILABLE   AGE
 php-apache   5/5     5            5           6m2s
-
 ```
 
-8.2 使用CA对集群进行自动扩展
+### 8.1.5 清理
+```bash
+kubectl delete -f hpa/php-apache.yaml
+```
+
+## 8.2 使用CA对集群进行自动扩展
 
 适用于AWS的Cluster Autoscaler提供与Auto Scaling Group 集成。 它使用户可以从四个不同的部署选项中进行选择：
 1. 一个Auto Scaling Group - 本节使用的方式
@@ -58,13 +62,12 @@ php-apache   5/5     5            5           6m2s
 3. 自动发现 Auto-Discovery
 4. 主节点设置
 
-8.2.1 Configure the Auto Scaling Group ASG
+### 8.2.1 Configure the Auto Scaling Group ASG
 ![ASG](media/cluster-asg.png)
-修改Capacity为
-Min: 2
-Max: 8
+修改Capacity为 Min: 2 Max: 10  
+使用本workshop的创建命令，已制定了Max为10，可不修改
 
-8.2.2 Apply CA
+### 8.2.2 Apply CA
 ```bash
 # 替换cluster_autoscaler/cluster_autoscaler.yml 148行Auto Scaling Group Id
 
@@ -87,7 +90,7 @@ kubectl logs -f deployment/cluster-autoscaler -n kube-system
 
 ```
 
-8.2.3 Scale cluster
+### 8.2.3 Scale cluster
 ```bash
 
 kubectl apply -f cluster-autoscaler/nginx-to-scaleout.yaml
@@ -138,7 +141,7 @@ aws ec2 describe-instances --filters "Name=tag:eks:cluster-name,Values=${CLUSTER
 
 ```
 
-8.2.4 clean up
+### 8.2.4 clean up
 ```bash
 kubectl delete -f cluster-autoscaler/nginx-to-scaleout.yaml
 kubectl delete -f cluster-autoscaler/cluster_autoscaler.yml

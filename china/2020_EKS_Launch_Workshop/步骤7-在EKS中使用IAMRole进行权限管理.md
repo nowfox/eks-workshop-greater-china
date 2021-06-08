@@ -3,27 +3,26 @@
 
 [官方文档](https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/)
 
-7.1 配置IAM Role、ServiceAccount
+## 7.1 IAM权限
+### 7.1.1 创建EKS OIDC Provider
 
->7.1.1 使用eksctl 创建service account 
+这个操作每个集群只需要做一次，如果在4.1.1做过，就跳过
+```bash
+eksctl utils associate-iam-oidc-provider --cluster=${CLUSTER_NAME} --approve --region ${AWS_REGION}
+```
+
+
+### 7.1.2 创建service account
 
 ```bash
-# 在步骤3我们已经创建了OIDC身份提供商 
-# 请检查IAM OpenID Connect (OIDC) 身份提供商是否已经创建
-aws eks describe-cluster --name ${CLUSTER_NAME} --region ${AWS_REGION} --query cluster.identity.oidc.issuer --output text
-# 如果上述命令无输出，请执行以下命令创建OpenID Connect (OIDC) 身份提供商
-eksctl utils associate-iam-oidc-provider --cluster=${CLUSTER_NAME} --approve --region ${AWS_REGION}
-
 #创建serviceaccount s3-echoer with IAM role
 eksctl create iamserviceaccount --name s3-echoer --namespace default \
     --cluster ${CLUSTER_NAME} --attach-policy-arn arn:aws-cn:iam::aws:policy/AmazonS3FullAccess \
     --approve --override-existing-serviceaccounts --region ${AWS_REGION}
-
 ```
 
-7.2 部署测试访问S3的应用
-*使用已有s3 bucket或创建s3 bucket, 请确保bucket名字唯一才能创建成功.
-
+## 7.2 部署测试访问S3的应用
+使用已有s3 bucket或创建s3 bucket
 ```bash
 # 设置环境变量TARGET_BUCKET,Pod访问的S3 bucket
 TARGET_BUCKET=您的bucket
@@ -40,6 +39,7 @@ Uploading user input to S3 using eksworkshop-irsa-2019/s3echoer-1583415691
 
 # 检查S3 bucket上面的文件
 aws s3api list-objects --bucket $TARGET_BUCKET --query 'Contents[].{Key: Key, Size: Size}'  --region $AWS_REGION
+##参考输出
 [
     {
         "Key": "s3echoer-1583415691",
@@ -51,10 +51,11 @@ aws s3api list-objects --bucket $TARGET_BUCKET --query 'Contents[].{Key: Key, Si
 kubectl delete job/s3-echoer
 ```
 
-7.3 部署第二个IAM 权限测试Pod
+## 7.3 部署第二个IAM 权限测试Pod
 ```bash
 # Apply the testing
 kubectl apply -f IRSA/iam-pod.yaml
+
 pod/s3-echoer created created
 
 kubectl get pod  s3-echoer

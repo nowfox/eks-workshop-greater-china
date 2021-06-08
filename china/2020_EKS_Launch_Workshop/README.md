@@ -10,7 +10,7 @@
 
   * [步骤3-部署官方的KubernetesDashboard](步骤3-部署官方的KubernetesDashboard.md)
 
-  * [步骤4-部署微服务以及配置ALBIngressController](步骤4-部署微服务以及配置ALBIngressController.md) 
+  * [步骤4-使用ALBIngressController](步骤4-使用ALBIngressController.md) 
 
   * [步骤5-配置使用EBS](步骤5-配置使用EBS.md)
 

@@ -74,18 +74,8 @@ CLUSTER_NAME=eksworkshop
 NAME                                               STATUS   ROLES    AGE     VERSION
 ip-192-168-25-66.cn-northwest-1.compute.internal   Ready    <none>   3m37s   v1.17.11-eks-cfdc40
 ip-192-168-77-21.cn-northwest-1.compute.internal   Ready    <none>   3m31s   v1.17.11-eks-cfdc40
-
  ```
 
-（可选）配置环境变量用于后续使用
-```bash
-STACK_NAME=$(eksctl get nodegroup --cluster ${CLUSTER_NAME} --region=${AWS_REGION} -o json | jq -r '.[].StackName')
-echo $STACK_NAME
-ROLE_NAME=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --region=${AWS_REGION} | jq -r '.StackResources[] | select(.ResourceType=="AWS::IAM::Role") | .PhysicalResourceId')
-echo $ROLE_NAME
-export ROLE_NAME=${ROLE_NAME}
-export STACK_NAME=${STACK_NAME}
-```
 
 ## 2.2  中国区镜像处理
 后续执行命令都基于`china/2020_EKS_Launch_Workshop/resource`目录

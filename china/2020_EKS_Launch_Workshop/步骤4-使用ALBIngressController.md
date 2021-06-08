@@ -1,6 +1,7 @@
 # 步骤4 使用ALB Ingress Controller
-
-参考文档 https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/deploy/configurations/
+注意：请确认已做ICP备案或ICP Exception  
+注意：请确保已经使用2.2章节自动修改image mirror的webhook。  
+参考文档 https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/deploy/installation/
 ## 4.1 IAM 权限
 ### 4.1.1 创建EKS OIDC Provider 
 这个操作每个集群只需要做一次
@@ -51,11 +52,11 @@ eksctl create iamserviceaccount \
 ### 4.2.1 安装证书管理
 ```bash
 kubectl apply --validate=false -f alb-ingress-controller/cert-manager.yaml
+#get all正常后，再执行4.2.2内容
+kubectl get all -n cert-manager
 ```
 ### 4.2.2 创建 ALB Ingress Controller
-
-修改alb-ingress-controller/alb-ingress-controller.yaml 788行cluster-name的值为集群名，这里填入`eksworkshop`
-
+修改alb-ingress-controller/alb-ingress-controller.yaml 797行cluster-name的值为集群名，这里填入`eksworkshop`
 ```bash
 kubectl apply -f alb-ingress-controller/alb-ingress-controller.yaml
  
@@ -72,8 +73,6 @@ kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o aws-load-
 
 ## 4.3 使用ALB Ingress   
 ### 4.3.1 为service创建ingress
-
-注意，确保已经使用2.2章节自动修改image mirror的webhook。
 ```bash
 kubectl apply -f alb-ingress-controller/alb-ingress.yaml
 ```
@@ -101,7 +100,7 @@ curl -i -k -H "Host:b.nowfox.com" https://${ALB}/echo
 curl -i -k -H "Host:b.nowfox.com" https://${ALB}
 
 # 如果遇到问题，请查看日志
-kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o alb-ingress[a-zA-Z0-9-]+)
+kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o aws-load-balancer-controller[a-zA-Z0-9-]+)
 ```
 在实际使用中，需要把a.nowfox.com、b.nowfox.com的CNAME指向ALB的地址。  
 如果使用https，确保AWS Certificate Manager服务里有对应的证书；  
